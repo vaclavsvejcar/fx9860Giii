@@ -1,0 +1,29 @@
+# --- fxSDK / gint build artifacts ---
+build-fx/
+build-cg/
+*.g1a
+*.g3a
+*.bin
+*.map
+*.o
+*.elf
+
+# --- CMake ---
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+
+# --- toolchain logs (installer) ---
+fx9860g-toolchain-logs/
+
+# --- deploy TUI virtualenv / Python cache ---
+.venv/
+__pycache__/
+*.pyc
+
+# --- editor / OS ---
+.DS_Store
+.idea/
+.vscode/
+*.swp
+*~

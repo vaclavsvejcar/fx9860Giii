@@ -1,31 +1,69 @@
 #include <gint/display.h>
 #include <gint/keyboard.h>
+#include "ui.h"
+#include "screens.h"
 
-/* Penumbra — darkroom helper for the Casio fx-9860GIII.
- *
- * First milestone: a "hello world" that verifies the whole build pipeline
- * (compile -> link gint -> generate .g1a). The real menu and calculators
- * come next. */
+/* Placeholder for functions that aren't built yet. */
+static void screen_soon(void)
+{
+	while(1) {
+		dclear(C_WHITE);
+		ui_title("Coming soon");
+		dtext_opt(64, 30, C_BLACK, C_NONE, DTEXT_CENTER, DTEXT_MIDDLE,
+			"Not built yet.", -1);
+		ui_footer("[EXIT] back");
+		dupdate();
+		if(getkey().key == KEY_EXIT)
+			return;
+	}
+}
+
+typedef struct {
+	const char *name;
+	void (*run)(void);
+} menu_item;
+
+static const menu_item items[] = {
+	{ "Chemistry dilution", screen_dilution },
+	{ "Temp compensation",  screen_soon },
+	{ "Development timer",   screen_soon },
+};
+#define NITEMS ((int)(sizeof(items) / sizeof(items[0])))
+
 int main(void)
 {
-	dclear(C_WHITE);
+	int sel = 0;
 
-	/* Title, centred at the top with a rule underneath. */
-	dtext_opt(64, 3, C_BLACK, C_NONE, DTEXT_CENTER, DTEXT_TOP,
-		"P E N U M B R A", -1);
-	drect(0, 13, 127, 13, C_BLACK);
+	while(1) {
+		dclear(C_WHITE);
+		ui_title("PENUMBRA");
 
-	dtext(4, 20, C_BLACK, "Darkroom helper");
-	dtext(4, 32, C_BLACK, "Toolchain: OK");
+		for(int i = 0; i < NITEMS; i++) {
+			int y = 15 + i * 11;
+			if(i == sel) {
+				drect(0, y - 1, 127, y + 9, C_BLACK);
+				dtext(5, y + 1, C_WHITE, items[i].name);
+			} else {
+				dtext(5, y + 1, C_BLACK, items[i].name);
+			}
+		}
 
-	dtext_opt(64, 61, C_BLACK, C_NONE, DTEXT_CENTER, DTEXT_BOTTOM,
-		"[EXIT] to quit", -1);
+		ui_footer("EXE:open  EXIT:quit");
+		dupdate();
 
-	dupdate();
-
-	/* Wait until EXIT is pressed. */
-	while(getkey().key != KEY_EXIT)
-		;
-
-	return 1;
+		key_event_t ev = getkey();
+		switch(ev.key) {
+			case KEY_UP:
+				sel = (sel + NITEMS - 1) % NITEMS;
+				break;
+			case KEY_DOWN:
+				sel = (sel + 1) % NITEMS;
+				break;
+			case KEY_EXE:
+				items[sel].run();
+				break;
+			case KEY_EXIT:
+				return 1;
+		}
+	}
 }
